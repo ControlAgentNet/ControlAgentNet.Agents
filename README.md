@@ -1,9 +1,9 @@
 # ControlAgentNet.Agents
 
 <p align="center">
-  <img src="https://img.shields.io/github/license/felixia-agent/ControlAgentNet" alt="License">
-  <img src="https://img.shields.io/github/stars/felixia-agent/ControlAgentNet" alt="Stars">
-  <img src="https://img.shields.io/dotnet_version" alt=".NET 10">
+  <img src="https://img.shields.io/github/license/ControlAgentNet/ControlAgentNet.Agents" alt="License">
+  <img src="https://img.shields.io/github/stars/ControlAgentNet/ControlAgentNet.Agents" alt="Stars">
+  <img src="https://img.shields.io/badge/.NET-10-512BD4" alt=".NET 10">
   <img src="https://img.shields.io/badge/built%20on-Microsoft%20Agent%20Framework-blue" alt="MAF">
 </p>
 
@@ -221,6 +221,6 @@ MIT License - See `LICENSE` for details.
 
 ## Links
 
-- [Documentation](https://github.com/felixia-agent/ControlAgentNet)
+- [Documentation](https://github.com/ControlAgentNet/ControlAgentNet.Agents)
 - [Samples](./samples/)
 - [NuGet Packages](https://nuget.org/packages/ControlAgentNet.Agents)
