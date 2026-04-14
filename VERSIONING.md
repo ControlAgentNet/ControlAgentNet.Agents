@@ -38,3 +38,5 @@ git push origin v0.1.0
 The CI workflow will then build, test, and pack version `0.1.0` exactly.
 
 The workflow also validates that the tag matches `VersionPrefix`, so `v0.1.0` will fail if the repository still declares a different base version.
+
+If the repository secret `NUGET_API_KEY` is configured with a valid NuGet.org API key, the same tag will also publish the generated packages automatically.
