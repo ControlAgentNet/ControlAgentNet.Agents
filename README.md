@@ -10,15 +10,45 @@
   <img src="https://img.shields.io/badge/built%20on-Microsoft%20Agent%20Framework-blue" alt="MAF">
 </p>
 
-> **Modular .NET Agent Framework** - Built on Microsoft Agent Framework for enterprise-grade AI agents.
+> Base packages for building ControlAgentNet agents on .NET 10.
 
 ---
+
+## What This Repository Contains
+
+This repository publishes the **base packages** of the ControlAgentNet ecosystem:
+
+- `ControlAgentNet.Agents` - main facade and default entry point
+- `ControlAgentNet.Core` - contracts, models, and descriptors
+- `ControlAgentNet.Runtime` - orchestration, middleware pipeline, and DI composition
+
+These packages are useful on their own when you want the core agent runtime.
+
+Provider, channel, tool, policy, and diagnostics packages live in **separate repositories** and are added only when a host application needs them.
+
+## What It Does By Itself
+
+With the packages in this repository you get:
+
+- agent registration via `AddControlAgentAgent(...)`
+- the default Microsoft Agent Framework execution path
+- middleware pipeline and orchestration
+- manifest generation and runtime composition
+- the base contracts that extension packages build on
+
+What you do **not** get here by default:
+
+- Azure OpenAI or other providers
+- Console, Telegram, or other channels
+- optional tools, guards, policies, and diagnostics
+
+Those capabilities are intentionally split into optional packages.
 
 ## Philosophy
 
 ### Zero Mandatory Dependencies
 
-Every capability is optional. You pay only for what you use. Nothing is forced.
+Every capability outside the base runtime is optional. You pay only for what you use. Nothing is forced.
 
 ```csharp
 // Minimal - just the agent
@@ -56,15 +86,13 @@ Each capability lives in its own package. Third parties can create new:
 
 ## Quick Start
 
-### Installation
+### Install Base Packages
 
 ```bash
 dotnet add package ControlAgentNet.Agents
-dotnet add package ControlAgentNet.Providers.AzureOpenAI
-dotnet add package ControlAgentNet.Channels.Console
 ```
 
-### Basic Usage
+### Minimal Usage
 
 ```csharp
 using ControlAgentNet.Agents;
@@ -76,12 +104,30 @@ builder.Services.AddControlAgentAgent(builder.Configuration, builder.Environment
     options.Id = "my-agent";
     options.Name = "My Agent";
     options.Instructions = "You are a helpful assistant.";
-})
-    .AddAzureOpenAI()
-    .AddConsoleChannel();
+});
 
 var host = builder.Build();
 await host.RunAsync();
+```
+
+### Add Optional Packages
+
+When you want real provider or channel integrations, add only the modules you need:
+
+```bash
+dotnet add package ControlAgentNet.Providers.AzureOpenAI
+dotnet add package ControlAgentNet.Channels.Console
+```
+
+```csharp
+builder.Services.AddControlAgentAgent(builder.Configuration, builder.Environment, options =>
+{
+    options.Id = "my-agent";
+    options.Name = "My Agent";
+    options.Instructions = "You are a helpful assistant.";
+})
+    .AddAzureOpenAI()
+    .AddConsoleChannel();
 ```
 
 ---
@@ -111,19 +157,27 @@ await host.RunAsync();
 
 ---
 
-## Packages
+## Packages Published From This Repository
 
 | Package | Description |
 |---------|-------------|
 | `ControlAgentNet.Agents` | Main facade - entry point |
 | `ControlAgentNet.Core` | Interfaces, models, descriptors |
 | `ControlAgentNet.Runtime` | Orchestration, middleware, DI |
+
+## Optional Ecosystem Packages
+
+These are separate packages that extend the base runtime:
+
+| Package Family | Description |
+|---------|-------------|
 | `ControlAgentNet.Providers.*` | AI provider integrations |
 | `ControlAgentNet.Channels.*` | Channel implementations |
 | `ControlAgentNet.Tools.*` | Tool packages |
 | `ControlAgentNet.Policies.*` | Policy storage |
 | `ControlAgentNet.Guards.*` | Tool execution guards |
 | `ControlAgentNet.Features.*` | Optional features |
+| `ControlAgentNet.Diagnostics.*` | Logging and observability |
 
 ---
 
