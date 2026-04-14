@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ControlAgentNet.Agents/ControlAgentNet.Agents.csproj" />
+    <Project Path="src/ControlAgentNet.Core/ControlAgentNet.Core.csproj" />
+    <Project Path="src/ControlAgentNet.Runtime/ControlAgentNet.Runtime.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Samples.Minimal/Samples.Minimal.csproj" />
+    <Project Path="samples/Samples.CustomEngine/Samples.CustomEngine.csproj" />
+    <Project Path="samples/Samples.Common/Samples.Common.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ControlAgentNet.Agents.Tests/ControlAgentNet.Agents.Tests.csproj" />
+    <Project Path="tests/ControlAgentNet.Core.Tests/ControlAgentNet.Core.Tests.csproj" />
+    <Project Path="tests/ControlAgentNet.Runtime.Tests/ControlAgentNet.Runtime.Tests.csproj" />
+  </Folder>
+</Solution>

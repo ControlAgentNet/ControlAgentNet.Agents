@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Samples.Common/Samples.Common.csproj" />
+  <Project Path="Samples.CustomEngine/Samples.CustomEngine.csproj" />
+  <Project Path="Samples.Minimal/Samples.Minimal.csproj" />
+</Solution>
