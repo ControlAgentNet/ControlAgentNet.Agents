@@ -3,6 +3,9 @@
 <p align="center">
   <img src="https://img.shields.io/github/license/ControlAgentNet/ControlAgentNet.Agents" alt="License">
   <img src="https://img.shields.io/github/stars/ControlAgentNet/ControlAgentNet.Agents" alt="Stars">
+  <img src="https://img.shields.io/github/actions/workflow/status/ControlAgentNet/ControlAgentNet.Agents/ci.yml?branch=main" alt="CI">
+  <img src="https://img.shields.io/nuget/v/ControlAgentNet.Agents" alt="NuGet Version">
+  <img src="https://img.shields.io/nuget/dt/ControlAgentNet.Agents" alt="NuGet Downloads">
   <img src="https://img.shields.io/badge/.NET-10-512BD4" alt=".NET 10">
   <img src="https://img.shields.io/badge/built%20on-Microsoft%20Agent%20Framework-blue" alt="MAF">
 </p>
@@ -86,26 +89,24 @@ await host.RunAsync();
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                   Host Application                   │
-│              (ASP.NET Core, Worker)                │
-├─────────────────────────────────────────────────────┤
-│                                                     │
-│  builder.Services.AddControlAgentAgent(...)             │
-│      .AddAzureOpenAI()           ← Provider         │
-│      .AddConsoleChannel()        ← Channel         │
-│      .AddGreetingTools()        ← Tools           │
-│      .AddAgentLogging()         ← Diagnostics      │
-│                                                     │
-├─────────────────────────────────────────────────────┤
-│              ControlAgentNet Packages                   │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐          │
-│  │  Core    │ │ Runtime  │ │ Agents   │          │
-│  └──────────┘ └──────────┘ └──────────┘          │
-└─────────────────────────────────────────────────────┘
-                        │
-                        ▼
-              Microsoft Agent Framework (MAF)
++---------------------------------------------------+
+| Host Application                                  |
+| (ASP.NET Core, Worker)                            |
++---------------------------------------------------+
+| builder.Services.AddControlAgentAgent(...)        |
+|   .AddAzureOpenAI()       <- Provider             |
+|   .AddConsoleChannel()    <- Channel              |
+|   .AddGreetingTools()     <- Tools                |
+|   .AddAgentLogging()      <- Diagnostics          |
++---------------------------------------------------+
+| ControlAgentNet Packages                          |
+|   +----------+  +----------+  +----------+        |
+|   | Core     |  | Runtime  |  | Agents   |        |
+|   +----------+  +----------+  +----------+        |
++---------------------------------------------------+
+                    |
+                    v
+          Microsoft Agent Framework (MAF)
 ```
 
 ---
