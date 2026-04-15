@@ -10,8 +10,8 @@
     <Company>ControlAgentNet</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/felixia-agent/ControlAgentNet.Agents</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/felixia-agent/ControlAgentNet.Agents</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/ControlAgentNet/ControlAgentNet.Agents</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ControlAgentNet/ControlAgentNet.Agents</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>

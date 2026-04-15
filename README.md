@@ -2,280 +2,295 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/license/ControlAgentNet/ControlAgentNet.Agents" alt="License">
-  <img src="https://img.shields.io/github/stars/ControlAgentNet/ControlAgentNet.Agents" alt="Stars">
   <img src="https://img.shields.io/github/actions/workflow/status/ControlAgentNet/ControlAgentNet.Agents/ci.yml?branch=main" alt="CI">
   <img src="https://img.shields.io/nuget/v/ControlAgentNet.Agents" alt="NuGet Version">
-  <img src="https://img.shields.io/nuget/dt/ControlAgentNet.Agents" alt="NuGet Downloads">
-  <img src="https://img.shields.io/badge/.NET-10-512BD4" alt=".NET 10">
-  <img src="https://img.shields.io/badge/built%20on-Microsoft%20Agent%20Framework-blue" alt="MAF">
 </p>
 
-> Base packages for building ControlAgentNet agents on .NET 10.
-
----
+> Base packages for building modular .NET agents with ControlAgentNet.
 
 ## What This Repository Contains
 
-This repository publishes the **base packages** of the ControlAgentNet ecosystem:
+This repository publishes the base packages of the ecosystem:
 
 - `ControlAgentNet.Agents` - main facade and default entry point
-- `ControlAgentNet.Core` - contracts, models, and descriptors
-- `ControlAgentNet.Runtime` - orchestration, middleware pipeline, and DI composition
+- `ControlAgentNet.Core` - contracts, descriptors, models, and shared abstractions
+- `ControlAgentNet.Runtime` - orchestration, middleware pipeline, tools, channels, and runtime composition
 
-These packages are useful on their own when you want the core agent runtime.
+Everything else in the ecosystem plugs into these base packages.
 
-Provider, channel, tool, policy, and diagnostics packages live in **separate repositories** and are added only when a host application needs them.
+## What You Get Out Of The Box
 
-## What It Does By Itself
-
-With the packages in this repository you get:
+With only the packages from this repository you already get:
 
 - agent registration via `AddControlAgentAgent(...)`
-- the default Microsoft Agent Framework execution path
-- middleware pipeline and orchestration
-- manifest generation and runtime composition
-- the base contracts that extension packages build on
+- a host-friendly runtime for workers and ASP.NET Core apps
+- middleware support
+- tool/channel registration infrastructure
+- tool guard infrastructure
+- policy contracts support
+- integration points for channels, providers, tools, guards, policies, diagnostics, and features
 
-What you do **not** get here by default:
+What you do **not** get by default:
 
-- Azure OpenAI or other providers
-- Console, Telegram, or other channels
-- optional tools, guards, policies, and diagnostics
+- a real LLM provider
+- external channels like Telegram
+- optional tools
+- persistent policy stores
+- runtime enforcement guards
+- diagnostics/exporters
 
-Those capabilities are intentionally split into optional packages.
+Those capabilities are intentionally split into separate packages.
 
-## Philosophy
-
-### Zero Mandatory Dependencies
-
-Every capability outside the base runtime is optional. You pay only for what you use. Nothing is forced.
-
-```csharp
-// Minimal - just the agent
-builder.Services.AddControlAgentAgent(config)
-    .AddAzureOpenAI();
-
-// Add what you need
-builder.Services.AddControlAgentAgent(config)
-    .AddAzureOpenAI()
-    .AddTelegramChannel()
-    .AddGreetingTools()
-    .AddAgentLogging()
-    .AddHumanInTheLoop();
-```
-
-### Enterprise Ready
-
-Built on **Microsoft Agent Framework (MAF)**, not against it. This means:
-
-- ✅ Production-tested by Microsoft
-- ✅ Full support for enterprise scenarios
-- ✅ Seamless integration with Azure AI services
-- ✅ Security, compliance, and scalability built-in
-
-### Modular by Design
-
-Each capability lives in its own package. Third parties can create new:
-
-- **Channels** (Telegram, Slack, Discord, WebSocket)
-- **Providers** (OpenAI, Anthropic, Ollama)
-- **Tools** (custom tool packages)
-- **Policies** (custom policy stores)
-
----
-
-## Quick Start
-
-### Install Base Packages
+## Installation
 
 ```bash
 dotnet add package ControlAgentNet.Agents
 ```
 
-### Minimal Usage
+## Quick Start
+
+### 1. Minimal Agent With No Extra Packages
+
+This is the smallest useful setup: a host plus a custom engine.
 
 ```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using ControlAgentNet.Agents;
+using ControlAgentNet.Core.Abstractions;
+using ControlAgentNet.Core.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddControlAgentAgent(builder.Configuration, builder.Environment, options =>
+builder.Services.AddControlAgentAgent(builder.Configuration, builder.Environment, configureAgent: options =>
 {
-    options.Id = "my-agent";
-    options.Name = "My Agent";
-    options.Instructions = "You are a helpful assistant.";
+    options.Id = "minimal-agent";
+    options.Name = "Minimal Agent";
+    options.Instructions = "Respond briefly and clearly.";
 });
 
-var host = builder.Build();
+builder.Services.AddSingleton<IAgentEngine, MinimalAgentEngine>();
+
+using var host = builder.Build();
 await host.RunAsync();
+
+internal sealed class MinimalAgentEngine : IAgentEngine
+{
+    public Task<AgentEngineResult> RunAsync(AgentContext context, CancellationToken cancellationToken)
+        => Task.FromResult(AgentEngineResult.FromText($"You said: {context.Message.Text}"));
+
+    public async IAsyncEnumerable<string> StreamAsync(AgentContext context, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        yield return (await RunAsync(context, cancellationToken)).Text;
+    }
+}
 ```
 
-### Add Optional Packages
-
-When you want real provider or channel integrations, add only the modules you need:
+### 2. Add A Provider
 
 ```bash
-dotnet add package ControlAgentNet.Providers.AzureOpenAI
+dotnet add package ControlAgentNet.Providers.OpenAI
+```
+
+```csharp
+using ControlAgentNet.Providers.OpenAI;
+
+builder.Services.AddControlAgentAgent(builder.Configuration, builder.Environment, configureAgent: options =>
+{
+    options.Id = "openai-agent";
+    options.Name = "OpenAI Agent";
+    options.Instructions = "You are a helpful assistant.";
+})
+    .AddOpenAI();
+```
+
+### 3. Add A Channel
+
+```bash
 dotnet add package ControlAgentNet.Channels.Console
 ```
 
 ```csharp
-builder.Services.AddControlAgentAgent(builder.Configuration, builder.Environment, options =>
+using ControlAgentNet.Channels.Console;
+
+builder.Services.AddControlAgentAgent(builder.Configuration, builder.Environment, configureAgent: options =>
 {
-    options.Id = "my-agent";
-    options.Name = "My Agent";
+    options.Id = "console-agent";
+    options.Name = "Console Agent";
     options.Instructions = "You are a helpful assistant.";
 })
-    .AddAzureOpenAI()
+    .AddOpenAI()
     .AddConsoleChannel();
 ```
 
----
+### 4. Add A Tool
 
-## Architecture
-
+```bash
+dotnet add package ControlAgentNet.Tools.Greeting
 ```
-+---------------------------------------------------+
-| Host Application                                  |
-| (ASP.NET Core, Worker)                            |
-+---------------------------------------------------+
-| builder.Services.AddControlAgentAgent(...)        |
-|   .AddAzureOpenAI()       <- Provider             |
-|   .AddConsoleChannel()    <- Channel              |
-|   .AddGreetingTools()     <- Tools                |
-|   .AddAgentLogging()      <- Diagnostics          |
-+---------------------------------------------------+
-| ControlAgentNet Packages                          |
-|   +----------+  +----------+  +----------+        |
-|   | Core     |  | Runtime  |  | Agents   |        |
-|   +----------+  +----------+  +----------+        |
-+---------------------------------------------------+
-                    |
-                    v
-          Microsoft Agent Framework (MAF)
-```
-
----
-
-## Packages Published From This Repository
-
-| Package | Description |
-|---------|-------------|
-| `ControlAgentNet.Agents` | Main facade - entry point |
-| `ControlAgentNet.Core` | Interfaces, models, descriptors |
-| `ControlAgentNet.Runtime` | Orchestration, middleware, DI |
-
-## Optional Ecosystem Packages
-
-These are separate packages that extend the base runtime:
-
-| Package Family | Description |
-|---------|-------------|
-| `ControlAgentNet.Providers.*` | AI provider integrations |
-| `ControlAgentNet.Channels.*` | Channel implementations |
-| `ControlAgentNet.Tools.*` | Tool packages |
-| `ControlAgentNet.Policies.*` | Policy storage |
-| `ControlAgentNet.Guards.*` | Tool execution guards |
-| `ControlAgentNet.Features.*` | Optional features |
-| `ControlAgentNet.Diagnostics.*` | Logging and observability |
-
----
-
-## Key Features
-
-### Middleware Pipeline
-
-Request/response processing through configurable middleware:
 
 ```csharp
-builder.Services.AddControlAgentAgent(config)
-    .AddAgentMiddleware<CustomMiddleware>();
+using ControlAgentNet.Tools.Greeting;
+
+builder.Services.AddControlAgentAgent(builder.Configuration, builder.Environment, configureAgent: options =>
+{
+    options.Id = "greeting-agent";
+    options.Name = "Greeting Agent";
+    options.Instructions = "Use the greeting tool when a friendly greeting is needed.";
+})
+    .AddOpenAI()
+    .AddConsoleChannel()
+    .AddGreetingTools();
 ```
 
-Built-in middleware:
-- Exception handling
-- Prompt injection defense
-- Agent logging (optional)
-- OpenTelemetry (optional)
+### 5. Add Policies And Guards
 
-### Tool Guards
-
-Control tool execution with guards:
+```bash
+dotnet add package ControlAgentNet.Policies.InMemory
+dotnet add package ControlAgentNet.Guards
+dotnet add package ControlAgentNet.Guards.Policies
+```
 
 ```csharp
-builder.Services.AddControlAgentAgent(config)
-    .AddRiskDenyGuard(opts => opts.MinimumDeniedRiskLevel = CapabilityRiskLevel.High)
-    .AddToolAllowlistGuard(opts => opts.AllowedToolIds = ["greeting"]);
+using ControlAgentNet.Policies.InMemory;
+using ControlAgentNet.Guards;
+using ControlAgentNet.Guards.Policies;
+
+builder.Services.AddInMemoryPolicyStore();
+builder.Services.AddPolicyEnforcementGuard();
+builder.Services.AddRiskDenyGuard(options =>
+{
+    options.MinimumDeniedRiskLevel = CapabilityRiskLevel.High;
+});
 ```
 
-### Policy-Based Control
+## Agent Capabilities By Category
 
-Enable/disable tools and channels at runtime:
+### Base Packages
 
-```csharp
-// Disable a tool for specific users
-await policyStore.SetUserToolPolicyAsync(
-    toolId: "greeting",
-    agentId: "my-agent",
-    userId: "user-123",
-    value: PolicyValue.Disabled);
+| Package | Repo | NuGet | What it adds |
+|---|---|---|---|
+| `ControlAgentNet.Agents` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Agents) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Agents) | Facade, host integration, default entry point |
+| `ControlAgentNet.Core` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Agents) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Core) | Contracts, models, descriptors |
+| `ControlAgentNet.Runtime` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Agents) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Runtime) | Runtime orchestration, middleware, registry infrastructure |
+
+### Providers
+
+| Package | Repo | NuGet | What it adds |
+|---|---|---|---|
+| `ControlAgentNet.Providers.OpenAI` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Providers.OpenAI) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Providers.OpenAI) | OpenAI chat model integration |
+| `ControlAgentNet.Providers.AzureOpenAI` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Providers.AzureOpenAI) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Providers.AzureOpenAI) | Azure OpenAI chat model integration |
+
+### Channels
+
+| Package | Repo | NuGet | What it adds |
+|---|---|---|---|
+| `ControlAgentNet.Channels.Console` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Channels.Console) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Channels.Console) | Interactive console channel |
+| `ControlAgentNet.Channels.Telegram` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Channels.Telegram) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Channels.Telegram) | Telegram bot channel |
+
+### Tools
+
+| Package | Repo | NuGet | What it adds |
+|---|---|---|---|
+| `ControlAgentNet.Tools.Greeting` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Tools.Greeting) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Tools.Greeting) | Simple greeting tool package |
+
+### Policies
+
+| Package | Repo | NuGet | What it adds |
+|---|---|---|---|
+| `ControlAgentNet.Policies` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Policies) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Policies) | Policy contracts and scoped policy model |
+| `ControlAgentNet.Policies.InMemory` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Policies.InMemory) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Policies.InMemory) | In-memory policy store |
+| `ControlAgentNet.Policies.Sqlite` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Policies.Sqlite) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Policies.Sqlite) | SQLite-backed policy store |
+| `ControlAgentNet.Policies.Migrations` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Policies.Migrations) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Policies.Migrations) | Database migration support for policy storage |
+
+### Guards
+
+| Package | Repo | NuGet | What it adds |
+|---|---|---|---|
+| `ControlAgentNet.Guards` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Guards) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Guards) | Core tool guards like allowlists and risk filters |
+| `ControlAgentNet.Guards.Policies` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Guards.Policies) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Guards.Policies) | Runtime policy enforcement guard |
+
+### Features
+
+| Package | Repo | NuGet | What it adds |
+|---|---|---|---|
+| `ControlAgentNet.Features.HumanInTheLoop` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Features.HumanInTheLoop) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Features.HumanInTheLoop) | Human approval and review flows |
+| `ControlAgentNet.Features.PolicyScopes` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Features.PolicyScopes) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Features.PolicyScopes) | Policy scope support utilities and integration |
+
+### Diagnostics
+
+| Package | Repo | NuGet | What it adds |
+|---|---|---|---|
+| `ControlAgentNet.Diagnostics.OpenTelemetry` | [repo](https://github.com/ControlAgentNet/ControlAgentNet.Diagnostics.OpenTelemetry) | [nuget](https://www.nuget.org/packages/ControlAgentNet.Diagnostics.OpenTelemetry) | OpenTelemetry instrumentation |
+
+## Common Compositions
+
+### Local Development Agent
+
+```bash
+dotnet add package ControlAgentNet.Agents
+dotnet add package ControlAgentNet.Providers.OpenAI
+dotnet add package ControlAgentNet.Channels.Console
+dotnet add package ControlAgentNet.Tools.Greeting
 ```
 
----
+### Telegram Assistant With Policy Enforcement
 
-## Why Microsoft Agent Framework?
+```bash
+dotnet add package ControlAgentNet.Agents
+dotnet add package ControlAgentNet.Providers.OpenAI
+dotnet add package ControlAgentNet.Channels.Telegram
+dotnet add package ControlAgentNet.Policies.Sqlite
+dotnet add package ControlAgentNet.Guards.Policies
+```
 
-1. **Production Ready** - Backed by Microsoft
-2. **Azure Integration** - Native Azure AI services support
-3. **Enterprise Features** - Security, compliance, monitoring
-4. **Active Development** - Continuous improvements from Microsoft
-5. **Ecosystem** - Growing community and tools
+### High-Risk Tool Controls
 
----
+```bash
+dotnet add package ControlAgentNet.Agents
+dotnet add package ControlAgentNet.Guards
+```
 
-## About This Project
+Use `ControlAgentNet.Guards` when you want:
 
-This is my **professional open-source project** demonstrating:
+- allowlists
+- risk-based blocking
+- custom runtime execution checks
 
-- **Advanced .NET Architecture** - Modular library design, DI patterns
-- **Microsoft Agent Framework Expertise** - Deep integration with MAF
-- **Production-Ready Patterns** - Policies, guards, observability
-- **Open Source Development** - Community-focused, well-documented
+Use `ControlAgentNet.Guards.Policies` when you want:
 
-### Goals
+- policy-driven enable/disable
+- `ApprovalRequired`
+- runtime enforcement backed by a policy store
 
-1. Provide a **modular foundation** for .NET AI agents
-2. Enable **enterprise scenarios** with MAF
-3. Build an **ecosystem** of channels, providers, and tools
-4. Demonstrate **professional-grade** .NET development
+## Samples In This Repository
 
----
+This repository includes:
 
-## Contributing
+- `samples/Samples.Minimal` - smallest base-host example
+- `samples/Samples.CustomEngine` - custom engine integration example
+- `samples/Samples.Common` - shared sample helpers used by the solution
 
-Contributions are welcome! See `CONTRIBUTING.md` for guidelines.
+## Build
+
+```bash
+dotnet restore ControlAgentNet.Agents.slnx
+dotnet build ControlAgentNet.Agents.slnx -c Release
+dotnet test ControlAgentNet.Agents.slnx -c Release --no-build
+dotnet pack ControlAgentNet.Agents.slnx -c Release -o artifacts/nuget
+```
 
 ## Versioning
 
-`ControlAgentNet.Agents` uses a standard open-source NuGet release flow:
+`ControlAgentNet.Agents` uses the standard ControlAgentNet release flow:
 
-- local builds: `0.1.0-dev`
-- pull requests: `0.1.0-preview.<run_number>`
-- pushes to `main`: `0.1.0-alpha.<run_number>`
-- release tags like `v0.1.0`: exact stable package version `0.1.0`
+- local builds: `0.1.1-dev`
+- pull requests: `0.1.1-preview.<run_number>`
+- pushes to `main`: `0.1.1-alpha.<run_number>`
+- tags like `v0.1.1`: exact stable package version `0.1.1`
 
 See `VERSIONING.md` for the release process.
-
----
 
 ## License
 
 MIT License - See `LICENSE` for details.
-
----
-
-## Links
-
-- [Documentation](https://github.com/ControlAgentNet/ControlAgentNet.Agents)
-- [Samples](./samples/)
-- [NuGet Packages](https://nuget.org/packages/ControlAgentNet.Agents)
