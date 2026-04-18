@@ -68,7 +68,7 @@ public sealed class LoggedAIFunction : AIFunction
         {
             return JsonSerializer.Serialize(result);
         }
-        catch
+        catch (JsonException)
         {
             return result.ToString() ?? "null";
         }
