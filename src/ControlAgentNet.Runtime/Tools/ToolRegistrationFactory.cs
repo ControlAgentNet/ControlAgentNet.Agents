@@ -16,7 +16,11 @@ public static class ToolRegistrationFactory
         return new ToolRegistration(
             descriptor,
             AIFunctionFactory.Create(
-                async () => await action(rootProvider.GetRequiredService<TTool>()),
+                async () =>
+                {
+                    using var scope = rootProvider.CreateScope();
+                    return await action(scope.ServiceProvider.GetRequiredService<TTool>());
+                },
                 functionName,
                 descriptor.Description));
     }
@@ -31,7 +35,11 @@ public static class ToolRegistrationFactory
         return new ToolRegistration(
             descriptor,
             AIFunctionFactory.Create(
-                async (CancellationToken cancellationToken) => await action(rootProvider.GetRequiredService<TTool>(), cancellationToken),
+                async (CancellationToken cancellationToken) =>
+                {
+                    using var scope = rootProvider.CreateScope();
+                    return await action(scope.ServiceProvider.GetRequiredService<TTool>(), cancellationToken);
+                },
                 functionName,
                 descriptor.Description));
     }
@@ -46,7 +54,11 @@ public static class ToolRegistrationFactory
         return new ToolRegistration(
             descriptor,
             AIFunctionFactory.Create(
-                async (TArg argument) => await action(rootProvider.GetRequiredService<TTool>(), argument),
+                async (TArg argument) =>
+                {
+                    using var scope = rootProvider.CreateScope();
+                    return await action(scope.ServiceProvider.GetRequiredService<TTool>(), argument);
+                },
                 functionName,
                 descriptor.Description));
     }
@@ -61,7 +73,11 @@ public static class ToolRegistrationFactory
         return new ToolRegistration(
             descriptor,
             AIFunctionFactory.Create(
-                async (TArg argument, CancellationToken cancellationToken) => await action(rootProvider.GetRequiredService<TTool>(), argument, cancellationToken),
+                async (TArg argument, CancellationToken cancellationToken) =>
+                {
+                    using var scope = rootProvider.CreateScope();
+                    return await action(scope.ServiceProvider.GetRequiredService<TTool>(), argument, cancellationToken);
+                },
                 functionName,
                 descriptor.Description));
     }
@@ -76,7 +92,11 @@ public static class ToolRegistrationFactory
         return new ToolRegistration(
             descriptor,
             AIFunctionFactory.Create(
-                async (TArg1 arg1, TArg2 arg2) => await action(rootProvider.GetRequiredService<TTool>(), arg1, arg2),
+                async (TArg1 arg1, TArg2 arg2) =>
+                {
+                    using var scope = rootProvider.CreateScope();
+                    return await action(scope.ServiceProvider.GetRequiredService<TTool>(), arg1, arg2);
+                },
                 functionName,
                 descriptor.Description));
     }
@@ -91,7 +111,11 @@ public static class ToolRegistrationFactory
         return new ToolRegistration(
             descriptor,
             AIFunctionFactory.Create(
-                async (TArg1 arg1, TArg2 arg2, CancellationToken cancellationToken) => await action(rootProvider.GetRequiredService<TTool>(), arg1, arg2, cancellationToken),
+                async (TArg1 arg1, TArg2 arg2, CancellationToken cancellationToken) =>
+                {
+                    using var scope = rootProvider.CreateScope();
+                    return await action(scope.ServiceProvider.GetRequiredService<TTool>(), arg1, arg2, cancellationToken);
+                },
                 functionName,
                 descriptor.Description));
     }
