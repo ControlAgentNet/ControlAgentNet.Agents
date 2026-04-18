@@ -125,6 +125,25 @@ var manifest = manifestRegistry.GetManifest();
 // }
 ```
 
+### ToolRegistrationFactory
+
+Creates tool invocations that are automatically wrapped with **structured error handling**. When a tool throws an unhandled exception the invocation does **not** throw — instead it returns a `ToolInvocationError` payload that the LLM receives as the tool result:
+
+```json
+{
+  "error": true,
+  "errorCode": "TOOL_EXCEPTION",
+  "message": "CalDAV request timed out after 30 s",
+  "tool": "QueryCalendarEvents"
+}
+```
+
+The `error` and `errorCode` fields can be referenced in system prompts so the LLM knows how to communicate failures to the user:
+
+> If a tool result contains `"error": true`, tell the user that the action could not be completed and include the `message` in your reply.
+
+`OperationCanceledException` is **not** converted — it propagates normally so that cancellation is always respected.
+
 ---
 
 ## Built-in Middleware
