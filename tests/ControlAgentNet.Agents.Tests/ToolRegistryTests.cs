@@ -1,5 +1,6 @@
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using ControlAgentNet.Core.Abstractions;
 using ControlAgentNet.Core.Descriptors;
 using ControlAgentNet.Core.Models;
@@ -56,7 +57,7 @@ public class ToolRegistryTests
         };
 
         var provider = new AgentContextProvider();
-        var registry = new ToolRegistry(registrations, provider, []);
+        var registry = new ToolRegistry(registrations, provider, [], NullLoggerFactory.Instance);
 
         var states = registry.GetToolStates();
 
@@ -70,7 +71,7 @@ public class ToolRegistryTests
     {
         var registration = CreateRegistration("TestTool");
         var provider = new AgentContextProvider();
-        return new ToolRegistry(new[] { registration }, provider, guards);
+        return new ToolRegistry(new[] { registration }, provider, guards, NullLoggerFactory.Instance);
     }
 
     private static IToolRegistration CreateRegistration(string name)
