@@ -1,5 +1,6 @@
 ---
-name: controlagentnet-dev
+name: ControlAgentNet
+icon: robot
 description: 'Development agent for the ControlAgentNet ecosystem. Resolves GitHub issues across all org repositories: base runtime, channels, providers, tools, guards, and policies. Understands the modular architecture, DI patterns, ToolRegistrationFactory, and the MAF foundation.'
 tools:
     [
