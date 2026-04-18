@@ -20,4 +20,14 @@ public sealed class AgentOptions
     /// </summary>
     public string ErrorMessage { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Sliding-expiration TTL for the cached <c>AIHostAgent</c> instance.
+    /// When the agent has not been used for this duration, it is evicted and
+    /// re-created with the latest configuration on the next invocation.
+    /// Defaults to 30 minutes. Set to <see cref="TimeSpan.Zero"/> to disable
+    /// TTL-based expiration (the agent is cached indefinitely until an explicit
+    /// invalidation or an options-change event).
+    /// </summary>
+    public TimeSpan CacheTtl { get; set; } = TimeSpan.FromMinutes(30);
+
 }
