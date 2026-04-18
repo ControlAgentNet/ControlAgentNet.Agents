@@ -18,7 +18,7 @@ public static class ToolRegistrationFactory
             AIFunctionFactory.Create(
                 async () =>
                 {
-                    using var scope = rootProvider.CreateScope();
+                    await using var scope = rootProvider.CreateAsyncScope();
                     return await action(scope.ServiceProvider.GetRequiredService<TTool>());
                 },
                 functionName,
@@ -37,7 +37,7 @@ public static class ToolRegistrationFactory
             AIFunctionFactory.Create(
                 async (CancellationToken cancellationToken) =>
                 {
-                    using var scope = rootProvider.CreateScope();
+                    await using var scope = rootProvider.CreateAsyncScope();
                     return await action(scope.ServiceProvider.GetRequiredService<TTool>(), cancellationToken);
                 },
                 functionName,
@@ -56,7 +56,7 @@ public static class ToolRegistrationFactory
             AIFunctionFactory.Create(
                 async (TArg argument) =>
                 {
-                    using var scope = rootProvider.CreateScope();
+                    await using var scope = rootProvider.CreateAsyncScope();
                     return await action(scope.ServiceProvider.GetRequiredService<TTool>(), argument);
                 },
                 functionName,
@@ -75,7 +75,7 @@ public static class ToolRegistrationFactory
             AIFunctionFactory.Create(
                 async (TArg argument, CancellationToken cancellationToken) =>
                 {
-                    using var scope = rootProvider.CreateScope();
+                    await using var scope = rootProvider.CreateAsyncScope();
                     return await action(scope.ServiceProvider.GetRequiredService<TTool>(), argument, cancellationToken);
                 },
                 functionName,
@@ -94,7 +94,7 @@ public static class ToolRegistrationFactory
             AIFunctionFactory.Create(
                 async (TArg1 arg1, TArg2 arg2) =>
                 {
-                    using var scope = rootProvider.CreateScope();
+                    await using var scope = rootProvider.CreateAsyncScope();
                     return await action(scope.ServiceProvider.GetRequiredService<TTool>(), arg1, arg2);
                 },
                 functionName,
@@ -113,7 +113,7 @@ public static class ToolRegistrationFactory
             AIFunctionFactory.Create(
                 async (TArg1 arg1, TArg2 arg2, CancellationToken cancellationToken) =>
                 {
-                    using var scope = rootProvider.CreateScope();
+                    await using var scope = rootProvider.CreateAsyncScope();
                     return await action(scope.ServiceProvider.GetRequiredService<TTool>(), arg1, arg2, cancellationToken);
                 },
                 functionName,
