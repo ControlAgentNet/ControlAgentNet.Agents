@@ -72,6 +72,56 @@ public class RuntimeCompositionTests
     }
 
     [Fact]
+    public void AddControlAgentAgent_registers_agent_cache_invalidator()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Agent:Id"] = "test-agent",
+                ["Agent:Name"] = "Test Agent",
+                ["Agent:Description"] = "Test description",
+                ["Agent:Instructions"] = "Be helpful"
+            })
+            .Build();
+
+        services.AddSingleton<IMicrosoftAgentsChatClientFactory, TestChatClientFactory>();
+
+        services.AddControlAgentAgent(configuration, new TestHostEnvironment());
+
+        using var provider = services.BuildServiceProvider();
+
+        Assert.NotNull(provider.GetRequiredService<IAgentCacheInvalidator>());
+    }
+
+    [Fact]
+    public void AddControlAgentAgent_IAgentEngine_and_IAgentCacheInvalidator_are_same_instance()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Agent:Id"] = "test-agent"
+            })
+            .Build();
+
+        services.AddSingleton<IMicrosoftAgentsChatClientFactory, TestChatClientFactory>();
+
+        services.AddControlAgentAgent(configuration, new TestHostEnvironment());
+
+        using var provider = services.BuildServiceProvider();
+
+        var engine = provider.GetRequiredService<IAgentEngine>();
+        var invalidator = provider.GetRequiredService<IAgentCacheInvalidator>();
+
+        Assert.Same(engine, invalidator);
+    }
+
+    [Fact]
     public void AddAgentMiddleware_adds_middleware_to_pipeline()
     {
         var services = new ServiceCollection();

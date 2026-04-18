@@ -13,7 +13,9 @@ public static class MicrosoftAgentsExtensions
     /// </summary>
     public static IControlAgentNetBuilder AddMicrosoftAgentsEngine(this IControlAgentNetBuilder builder)
     {
-        builder.Services.AddSingleton<IAgentEngine, MicrosoftAgentsAIEngine>();
+        builder.Services.AddSingleton<MicrosoftAgentsAIEngine>();
+        builder.Services.AddSingleton<IAgentEngine>(sp => sp.GetRequiredService<MicrosoftAgentsAIEngine>());
+        builder.Services.AddSingleton<IAgentCacheInvalidator>(sp => sp.GetRequiredService<MicrosoftAgentsAIEngine>());
         builder.Services.AddSingleton<AgentSessionStore, InMemoryMafAgentSessionStore>();
 
         return builder;

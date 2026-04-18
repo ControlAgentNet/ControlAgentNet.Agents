@@ -11,7 +11,7 @@ using ControlAgentNet.Runtime.Tools;
 
 namespace ControlAgentNet.Agents;
 
-public sealed class MicrosoftAgentsAIEngine : IAgentEngine, IDisposable
+public sealed class MicrosoftAgentsAIEngine : IAgentEngine, IAgentCacheInvalidator, IDisposable
 {
     private readonly IOptionsMonitor<AgentOptions> _agentOptionsMonitor;
     private readonly IMicrosoftAgentsChatClientFactory _chatClientFactory;
@@ -52,6 +52,14 @@ public sealed class MicrosoftAgentsAIEngine : IAgentEngine, IDisposable
     {
         _optionsChangeListener?.Dispose();
         _agentCache.Dispose();
+    }
+
+    /// <inheritdoc/>
+    public void InvalidateAgent(string agentId)
+    {
+        var cacheKey = $"microsoftagents:{agentId}";
+        _logger.LogInformation("Manually invalidating MicrosoftAgents AIHostAgent cache for agent {AgentId}.", agentId);
+        _agentCache.Remove(cacheKey);
     }
 
     public async Task<AgentEngineResult> RunAsync(AgentContext context, CancellationToken cancellationToken)
@@ -123,7 +131,10 @@ public sealed class MicrosoftAgentsAIEngine : IAgentEngine, IDisposable
         return _agentCache.GetOrCreate(cacheKey, entry =>
         {
             entry.Size = 1;
-            entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+            if (currentOptions.CacheTtl > TimeSpan.Zero)
+            {
+                entry.SlidingExpiration = currentOptions.CacheTtl;
+            }
 
             _logger.LogInformation("Creating MicrosoftAgents AIHostAgent for {AgentId}", currentOptions.Id);
 

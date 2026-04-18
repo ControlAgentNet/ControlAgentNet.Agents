@@ -123,6 +123,14 @@ public class AgentOptionsTests
     }
 
     [Fact]
+    public void AgentOptions_CacheTtl_DefaultsToThirtyMinutes()
+    {
+        var options = new AgentOptions();
+
+        Assert.Equal(TimeSpan.FromMinutes(30), options.CacheTtl);
+    }
+
+    [Fact]
     public void AgentOptions_SetProperties_WorksCorrectly()
     {
         var options = new AgentOptions
@@ -137,6 +145,23 @@ public class AgentOptionsTests
         Assert.Equal("Test Agent", options.Name);
         Assert.Equal("A test agent", options.Description);
         Assert.Equal("You are helpful.", options.Instructions);
+    }
+
+    [Fact]
+    public void AgentOptions_CacheTtl_CanBeSetToCustomValue()
+    {
+        var expected = TimeSpan.FromMinutes(5);
+        var options = new AgentOptions { CacheTtl = expected };
+
+        Assert.Equal(expected, options.CacheTtl);
+    }
+
+    [Fact]
+    public void AgentOptions_CacheTtl_ZeroDisablesTtl()
+    {
+        var options = new AgentOptions { CacheTtl = TimeSpan.Zero };
+
+        Assert.Equal(TimeSpan.Zero, options.CacheTtl);
     }
 }
 
