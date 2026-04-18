@@ -2,6 +2,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ControlAgentNet.Core.Abstractions;
 using ControlAgentNet.Runtime.Channels;
+using ControlAgentNet.Runtime.Tools;
 
 namespace ControlAgentNet.Runtime.Extensions;
 
@@ -13,17 +14,20 @@ public sealed class ControlAgentNetStartupValidator : IHostedService
 {
     private readonly IAgentEngine _engine;
     private readonly ChannelRegistry _channelRegistry;
+    private readonly ToolRegistry _toolRegistry;
     private readonly ILogger<ControlAgentNetStartupValidator> _logger;
 
     public ControlAgentNetStartupValidator(
         IAgentEngine engine,
         ChannelRegistry channelRegistry,
+        ToolRegistry toolRegistry,
         ILogger<ControlAgentNetStartupValidator> logger)
     {
         // If IAgentEngine is missing, the DI container will throw an exception during activation,
         // which serves our purpose of fast-failing during startup.
         _engine = engine;
         _channelRegistry = channelRegistry;
+        _toolRegistry = toolRegistry;
         _logger = logger;
     }
 
@@ -48,6 +52,17 @@ public sealed class ControlAgentNetStartupValidator : IHostedService
                 _logger.LogInformation("ControlAgentNet is configured with {EngineType} and {ChannelCount} active channels: {Channels}", 
                     _engine.GetType().Name, activeChannels.Count, string.Join(", ", activeChannels));
             }
+        }
+
+        var tools = _toolRegistry.GetToolStates();
+        if (tools.Count == 0)
+        {
+            _logger.LogWarning("No ControlAgentNet tools have been registered. The agent will not be able to invoke any tools.");
+        }
+        else
+        {
+            var toolNames = tools.Select(x => x.Descriptor.Name);
+            _logger.LogInformation("Tools registered: {ToolCount} — {Tools}", tools.Count, string.Join(", ", toolNames));
         }
 
         return Task.CompletedTask;
