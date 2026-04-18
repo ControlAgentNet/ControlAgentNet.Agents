@@ -39,16 +39,16 @@ public class ToolRegistrationFactoryTests
     public async Task Create_ZeroArg_DisposesScope()
     {
         var services = new ServiceCollection();
-        services.AddScoped<DisposableTool>();
+        services.AddScoped<AsyncDisposableTool>();
         var provider = services.BuildServiceProvider();
 
-        var registration = ToolRegistrationFactory.Create<DisposableTool, string>(
+        var registration = ToolRegistrationFactory.Create<AsyncDisposableTool, string>(
             provider, TestDescriptor, "TestTool",
             tool => tool.ExecuteAsync());
 
         await ((AIFunction)registration.Tool).InvokeAsync([], CancellationToken.None);
 
-        Assert.True(DisposableTool.WasDisposed);
+        Assert.True(AsyncDisposableTool.WasDisposed);
     }
 
     // ── 0-arg + CancellationToken overload ──────────────────────────────────
@@ -166,14 +166,18 @@ public class ToolRegistrationFactoryTests
         public Task<string> ExecuteAsync(string a, int b, CancellationToken ct = default) => Task.FromResult($"{a}:{b}");
     }
 
-    private sealed class DisposableTool : IDisposable
+    private sealed class AsyncDisposableTool : IAsyncDisposable
     {
         public static bool WasDisposed { get; private set; }
 
-        public DisposableTool() => WasDisposed = false;
+        public AsyncDisposableTool() => WasDisposed = false;
 
         public Task<string> ExecuteAsync() => Task.FromResult("ok");
 
-        public void Dispose() => WasDisposed = true;
+        public ValueTask DisposeAsync()
+        {
+            WasDisposed = true;
+            return ValueTask.CompletedTask;
+        }
     }
 }
