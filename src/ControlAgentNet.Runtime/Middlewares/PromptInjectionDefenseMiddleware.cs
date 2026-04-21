@@ -112,6 +112,7 @@ public sealed class PromptInjectionDefenseMiddleware : IAgentMiddleware, IDispos
             ConversationId = context.Message.ConversationId,
             CorrelationId = context.Message.CorrelationId,
             ChannelId = context.Message.ChannelId,
+            ChannelType = context.Message.ChannelType,
             Text = options.BlockedResponseText,
             Timestamp = DateTimeOffset.UtcNow,
             Thoughts = context.Thoughts.ToList()

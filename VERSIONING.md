@@ -22,21 +22,21 @@ This project follows the common open-source NuGet pattern:
 1. `Directory.Build.props` remains the source of truth for `VersionPrefix`.
 2. Pull requests validate the code and produce preview packages.
 3. Pushes to `main` produce alpha packages.
-4. Stable releases are created only from Git tags like `v0.1.0`.
+4. Stable releases are created only from Git tags like `v0.1.7`.
 
-To publish version `0.1.0`:
+To publish version `0.1.7`:
 
-1. Set `<VersionPrefix>0.1.0</VersionPrefix>` in `Directory.Build.props`.
+1. Set `<VersionPrefix>0.1.7</VersionPrefix>` in `Directory.Build.props`.
 2. Merge the release-ready commit to `main`.
 3. Create the tag:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.1.7
+git push origin v0.1.7
 ```
 
-The CI workflow will then build, test, and pack version `0.1.0` exactly.
+The CI workflow will then build, test, and pack version `0.1.7` exactly.
 
-The workflow also validates that the tag matches `VersionPrefix`, so `v0.1.0` will fail if the repository still declares a different base version.
+The workflow also validates that the tag matches `VersionPrefix`, so `v0.1.7` will fail if the repository still declares a different base version.
 
 If the repository secret `NUGET_API_KEY` is configured with a valid NuGet.org API key, the same tag will also publish the generated packages automatically.

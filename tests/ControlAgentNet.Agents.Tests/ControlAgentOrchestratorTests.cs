@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using ControlAgentNet.Core.Abstractions;
+using ControlAgentNet.Core.Descriptors;
 using ControlAgentNet.Core.Models;
 using ControlAgentNet.Runtime.Agents;
 using Xunit;
@@ -20,11 +21,13 @@ public class ControlAgentOrchestratorTests
                 ConversationId = "conv-1",
                 UserId = "user-1",
                 Text = "Hello",
-                ChannelId = "test"
+                ChannelId = "test",
+                ChannelType = ChannelTransportKind.Chat
             },
             CancellationToken.None);
 
         Assert.Equal("Hello from agent", response.Text);
+        Assert.Equal(ChannelTransportKind.Chat, response.ChannelType);
     }
 
     [Fact]
@@ -38,7 +41,8 @@ public class ControlAgentOrchestratorTests
                 ConversationId = "conv-1",
                 UserId = "user-1",
                 Text = "Hello",
-                ChannelId = "test"
+                ChannelId = "test",
+                ChannelType = ChannelTransportKind.Chat
             },
             CancellationToken.None);
 
@@ -61,7 +65,8 @@ public class ControlAgentOrchestratorTests
                     ConversationId = "conv-1",
                     UserId = "user-1",
                     Text = "Hello",
-                    ChannelId = "test"
+                    ChannelId = "test",
+                    ChannelType = ChannelTransportKind.Chat
                 },
                 CancellationToken.None));
     }
@@ -81,7 +86,8 @@ public class ControlAgentOrchestratorTests
                 ConversationId = "conv-1",
                 UserId = "user-1",
                 Text = "Hello",
-                ChannelId = "test"
+                ChannelId = "test",
+                ChannelType = ChannelTransportKind.Chat
             },
             CancellationToken.None);
 

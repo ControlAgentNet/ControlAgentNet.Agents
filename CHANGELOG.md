@@ -16,6 +16,9 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Agent Hot-Reload**: Replaced static options in `MicrosoftAgentsAIEngine` with `IOptionsMonitor<AgentOptions>`. The `AIHostAgent` cache is now automatically invalidated and repopulated when options change at runtime.
 
 ### Added
+- `IncomingMessage.ChannelType` and `OutgoingMessage.ChannelType` so agents and transports can distinguish the shared channel kind independently from the concrete `ChannelId`.
+- `IncomingAttachment` plus `IncomingMessage.Attachments` and `IncomingMessage.Metadata` for channel-neutral file and platform metadata.
+- `OutgoingAttachment`, `OutgoingAction`, and `OutgoingMessage.Metadata` for channel-neutral response files, actions, and delivery hints.
 - `SECURITY.md` expanded with supported versions table, response SLA, in-scope/out-of-scope definitions, and security features overview.
 - `CONTRIBUTING.md` expanded with prerequisites, build/test commands, local NuGet testing, branch conventions, and PR process.
 - `CODE_OF_CONDUCT.md` replaced with a full Contributor Covenant 2.1-based policy.

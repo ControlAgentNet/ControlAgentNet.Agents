@@ -89,7 +89,7 @@ public sealed class AgentMiddlewarePipeline
 {
     public async Task<OutgoingMessage> ExecuteAsync(
         IncomingMessage message,
-        Func<AgentContext, Task<OutgoingMessage>> terminal,
+        Func<AgentContext, CancellationToken, Task<OutgoingMessage>> terminal,
         CancellationToken cancellationToken)
     {
         // Chain middleware: A → B → C → terminal

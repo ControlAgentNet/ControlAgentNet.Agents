@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using ControlAgentNet.Core.Abstractions;
+using ControlAgentNet.Core.Descriptors;
 using ControlAgentNet.Core.Models;
 using ControlAgentNet.Runtime.Agents;
 using Xunit;
@@ -30,7 +31,8 @@ public class AgentMiddlewarePipelineTests
                 {
                     ConversationId = ctx.Message.ConversationId,
                     Text = "response",
-                    ChannelId = ctx.Message.ChannelId
+                    ChannelId = ctx.Message.ChannelId,
+                    ChannelType = ctx.Message.ChannelType
                 });
             },
             CancellationToken.None);
@@ -57,7 +59,8 @@ public class AgentMiddlewarePipelineTests
                 {
                     ConversationId = ctx.Message.ConversationId,
                     Text = "response",
-                    ChannelId = ctx.Message.ChannelId
+                    ChannelId = ctx.Message.ChannelId,
+                    ChannelType = ctx.Message.ChannelType
                 });
             },
             CancellationToken.None);
@@ -89,7 +92,8 @@ public class AgentMiddlewarePipelineTests
             {
                 ConversationId = ctx.Message.ConversationId,
                 Text = "Hello World",
-                ChannelId = ctx.Message.ChannelId
+                ChannelId = ctx.Message.ChannelId,
+                ChannelType = ctx.Message.ChannelType
             }),
             CancellationToken.None);
 
@@ -101,7 +105,8 @@ public class AgentMiddlewarePipelineTests
         ConversationId = "conv-1",
         UserId = "user-1",
         Text = "test message",
-        ChannelId = "test"
+        ChannelId = "test",
+        ChannelType = ChannelTransportKind.Chat
     };
 
     private sealed class RecordingMiddleware : IAgentMiddleware

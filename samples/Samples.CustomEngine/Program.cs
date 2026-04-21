@@ -17,7 +17,7 @@ var channelDescriptor = new ChannelDescriptor(
     Name: "Console",
     Description: "Console channel for testing.",
     DefaultEnabled: true,
-    Transport: ChannelTransportKind.Chat,
+    Transport: ChannelTransportKind.Console,
     Version: "1.0.0",
     SourceAssembly: "HelloWorld.CustomEngine",
     Category: "sample");

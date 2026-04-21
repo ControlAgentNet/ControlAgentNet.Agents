@@ -1,3 +1,5 @@
+using ControlAgentNet.Core.Descriptors;
+
 namespace ControlAgentNet.Core.Models;
 
 public sealed record OutgoingMessage
@@ -17,6 +19,12 @@ public sealed record OutgoingMessage
 
     public bool IsStreaming => ContentStream != null;
 
+    public IReadOnlyList<OutgoingAttachment> Attachments { get; init; } = [];
+
+    public IReadOnlyList<OutgoingAction> Actions { get; init; } = [];
+
+    public IReadOnlyDictionary<string, string> Metadata { get; init; } = new Dictionary<string, string>();
+
     /// <summary>
     /// Internal thoughts or tool calls generated during the processing of this message.
     /// </summary>
@@ -28,6 +36,8 @@ public sealed record OutgoingMessage
     public TokenUsage? Usage { get; init; }
 
     public required string ChannelId { get; init; }
+
+    public required ChannelTransportKind ChannelType { get; init; }
 
     public DateTimeOffset Timestamp { get; init; } = DateTimeOffset.UtcNow;
 

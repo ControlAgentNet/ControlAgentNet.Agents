@@ -1,3 +1,5 @@
+using ControlAgentNet.Core.Descriptors;
+
 namespace ControlAgentNet.Core.Models;
 
 public sealed record IncomingMessage
@@ -12,7 +14,13 @@ public sealed record IncomingMessage
 
     public required string ChannelId { get; init; }
 
+    public required ChannelTransportKind ChannelType { get; init; }
+
     public DateTimeOffset Timestamp { get; init; } = DateTimeOffset.UtcNow;
 
     public string? CorrelationId { get; init; }
+
+    public IReadOnlyList<IncomingAttachment> Attachments { get; init; } = [];
+
+    public IReadOnlyDictionary<string, string> Metadata { get; init; } = new Dictionary<string, string>();
 }

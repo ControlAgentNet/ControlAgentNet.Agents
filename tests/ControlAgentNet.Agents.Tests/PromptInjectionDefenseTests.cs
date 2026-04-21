@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using ControlAgentNet.Core.Abstractions;
+using ControlAgentNet.Core.Descriptors;
 using ControlAgentNet.Core.Models;
 using ControlAgentNet.Runtime.Middlewares;
 using Xunit;
@@ -199,7 +200,8 @@ public class PromptInjectionDefenseTests
             ConversationId = "conv-1",
             UserId = "user-1",
             Text = text,
-            ChannelId = "test"
+            ChannelId = "test",
+            ChannelType = ChannelTransportKind.Chat
         }
     };
 
@@ -208,6 +210,7 @@ public class PromptInjectionDefenseTests
         {
             ConversationId = ctx.Message.ConversationId,
             Text = ctx.Message.Text,
-            ChannelId = ctx.Message.ChannelId
+            ChannelId = ctx.Message.ChannelId,
+            ChannelType = ctx.Message.ChannelType
         });
 }

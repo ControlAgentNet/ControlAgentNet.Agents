@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using ControlAgentNet.Core.Abstractions;
+using ControlAgentNet.Core.Descriptors;
 using ControlAgentNet.Core.Models;
 using ControlAgentNet.Runtime.Extensions;
 
@@ -21,7 +22,8 @@ var message = new IncomingMessage
     ConversationId = "hello-world-minimal-conversation",
     UserId = "developer",
     Text = "Who are you?",
-    ChannelId = "console"
+    ChannelId = "console",
+    ChannelType = ChannelTransportKind.Console
 };
 
 var response = await orchestrator.ProcessAsync(message);

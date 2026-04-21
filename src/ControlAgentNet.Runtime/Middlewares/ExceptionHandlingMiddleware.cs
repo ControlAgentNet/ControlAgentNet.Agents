@@ -46,6 +46,7 @@ public sealed class ExceptionHandlingMiddleware : IAgentMiddleware
                 ConversationId = context.Message.ConversationId,
                 CorrelationId = context.Message.CorrelationId,
                 ChannelId = context.Message.ChannelId,
+                ChannelType = context.Message.ChannelType,
                 Text = errorMessage,
                 Timestamp = DateTimeOffset.UtcNow
             };

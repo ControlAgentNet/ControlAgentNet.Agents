@@ -15,13 +15,17 @@ public class IncomingMessageTests
             ConversationId = "conv-123",
             UserId = "user-456",
             Text = "Hello",
-            ChannelId = "console"
+            ChannelId = "console",
+            ChannelType = ChannelTransportKind.Console
         };
 
         Assert.Equal("conv-123", message.ConversationId);
         Assert.Equal("user-456", message.UserId);
         Assert.Equal("Hello", message.Text);
         Assert.Equal("console", message.ChannelId);
+        Assert.Equal(ChannelTransportKind.Console, message.ChannelType);
+        Assert.Empty(message.Attachments);
+        Assert.Empty(message.Metadata);
     }
 
     [Fact]
@@ -32,7 +36,8 @@ public class IncomingMessageTests
             ConversationId = "conv-123",
             UserId = "user-456",
             Text = "Hello",
-            ChannelId = "console"
+            ChannelId = "console",
+            ChannelType = ChannelTransportKind.Console
         };
 
         Assert.NotEqual(default, message.Timestamp);
@@ -48,12 +53,17 @@ public class OutgoingMessageTests
         {
             ConversationId = "conv-123",
             Text = "Hello!",
-            ChannelId = "console"
+            ChannelId = "console",
+            ChannelType = ChannelTransportKind.Console
         };
 
         Assert.Equal("conv-123", message.ConversationId);
         Assert.Equal("Hello!", message.Text);
         Assert.Equal("console", message.ChannelId);
+        Assert.Equal(ChannelTransportKind.Console, message.ChannelType);
+        Assert.Empty(message.Attachments);
+        Assert.Empty(message.Actions);
+        Assert.Empty(message.Metadata);
     }
 
     [Fact]
@@ -63,10 +73,61 @@ public class OutgoingMessageTests
         {
             ConversationId = "conv-123",
             Text = "Hello!",
-            ChannelId = "console"
+            ChannelId = "console",
+            ChannelType = ChannelTransportKind.Console
         };
 
         Assert.NotEqual(default, message.Timestamp);
+    }
+
+    [Fact]
+    public void OutgoingMessage_SupportsAttachmentsActionsAndMetadata()
+    {
+        var attachment = new OutgoingAttachment
+        {
+            Id = "file-1",
+            Type = "document",
+            FileName = "report.pdf",
+            ContentType = "application/pdf",
+            SizeBytes = 123,
+            Url = new Uri("https://example.test/report.pdf"),
+            Metadata = new Dictionary<string, string>
+            {
+                ["source"] = "test"
+            }
+        };
+
+        var action = new OutgoingAction
+        {
+            Id = "approve",
+            Type = "button",
+            Text = "Approve",
+            Value = "approve:123",
+            Metadata = new Dictionary<string, string>
+            {
+                ["style"] = "primary"
+            }
+        };
+
+        var message = new OutgoingMessage
+        {
+            ConversationId = "conv-123",
+            Text = "Review this file.",
+            ChannelId = "telegram",
+            ChannelType = ChannelTransportKind.Chat,
+            Attachments = [attachment],
+            Actions = [action],
+            Metadata = new Dictionary<string, string>
+            {
+                ["format"] = "markdown"
+            }
+        };
+
+        Assert.Single(message.Attachments);
+        Assert.Equal("report.pdf", message.Attachments[0].FileName);
+        Assert.Single(message.Actions);
+        Assert.Equal("Approve", message.Actions[0].Text);
+        Assert.Equal("markdown", message.Metadata["format"]);
     }
 }
 
@@ -80,7 +141,8 @@ public class AgentContextTests
             ConversationId = "conv-1",
             UserId = "user-1",
             Text = "test",
-            ChannelId = "console"
+            ChannelId = "console",
+            ChannelType = ChannelTransportKind.Console
         };
         var context = new AgentContext { Message = message };
 
@@ -97,7 +159,8 @@ public class AgentContextTests
             ConversationId = "conv-1",
             UserId = "user-1",
             Text = "test",
-            ChannelId = "console"
+            ChannelId = "console",
+            ChannelType = ChannelTransportKind.Console
         };
         var context = new AgentContext { Message = message };
         context.Usage = new TokenUsage(100, 50);
