@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Options;
 using ControlAgentNet.Core.Abstractions;
 using ControlAgentNet.Core.Descriptors;
 using ControlAgentNet.Core.Models;
@@ -16,17 +17,20 @@ public sealed class GuardedAIFunction : AIFunction
     private readonly ToolDescriptor _descriptor;
     private readonly IToolGuard[] _guards;
     private readonly IAgentContextProvider _contextProvider;
+    private readonly string _agentId;
 
     public GuardedAIFunction(
         AIFunction inner,
         ToolDescriptor descriptor,
         IEnumerable<IToolGuard> guards,
-        IAgentContextProvider contextProvider)
+        IAgentContextProvider contextProvider,
+        IOptions<AgentOptions> agentOptions)
     {
         _inner = inner;
         _descriptor = descriptor;
         _guards = guards.ToArray();
         _contextProvider = contextProvider;
+        _agentId = agentOptions.Value.Id;
     }
 
     public override string Name => _inner.Name;
@@ -54,6 +58,9 @@ public sealed class GuardedAIFunction : AIFunction
             _descriptor.Id,
             userId,
             convId,
+            TenantId: msg?.TenantId,
+            AgentId: _agentId,
+            ChannelId: msg?.ChannelId,
             ToolInstance: _descriptor,
             Parameters: parameters,
             Descriptor: _descriptor);

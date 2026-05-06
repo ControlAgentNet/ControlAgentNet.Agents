@@ -5,5 +5,6 @@ public enum ChannelTransportKind
     Console = 0,
     Chat = 1,
     Webhook = 2,
-    Http = 3
+    Http = 3,
+    Scheduled = 4
 }

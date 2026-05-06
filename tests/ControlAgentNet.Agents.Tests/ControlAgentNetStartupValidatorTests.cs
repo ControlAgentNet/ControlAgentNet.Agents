@@ -1,8 +1,10 @@
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using ControlAgentNet.Core.Abstractions;
 using ControlAgentNet.Core.Descriptors;
+using ControlAgentNet.Core.Models;
 using ControlAgentNet.Runtime.Agents;
 using ControlAgentNet.Runtime.Channels;
 using ControlAgentNet.Runtime.Extensions;
@@ -73,7 +75,12 @@ public class ControlAgentNetStartupValidatorTests
         var engine = new Mock<IAgentEngine>().Object;
         var channelRegistry = new ChannelRegistry([]);
         var contextProvider = new AgentContextProvider();
-        var toolRegistry = new ToolRegistry(toolRegistrations, contextProvider, [], Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance);
+        var toolRegistry = new ToolRegistry(
+            toolRegistrations,
+            contextProvider,
+            [],
+            Options.Create(new AgentOptions { Id = "agent-1" }),
+            Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance);
         var logger = new CapturingLogger<ControlAgentNetStartupValidator>();
 
         var validator = new ControlAgentNetStartupValidator(engine, channelRegistry, toolRegistry, logger);
